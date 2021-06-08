@@ -1,18 +1,10 @@
 // NOTE: All the functions in this mod assume that the arguments passed in exist.  It is up to the
 //       caller to make sure that they do. 
 
-// Various mod values.
-$SelectiveSwimming::LoopTick = 33;
-
-// Properties of the players' swim zones.
-$SelectiveSwimming::WaterViscosity = 70;
-$SelectiveSwimming::WaterDensity = 0.7;
-$SelectiveSwimming::WaterGravityMod = 0;
-
-// How to scale the swim zone according to the player's bounding box.
-$SelectiveSwimming::WaterScaleMultX = 0.5;
-$SelectiveSwimming::WaterScaleMultY = 0.5;
-$SelectiveSwimming::WaterScaleMultZ = 0.4;
+function defaultValue ( %value, %default )
+{
+	return (%value $= "" ? %default : %value);
+}
 
 function SelectiveSwimming_init ()
 {
@@ -27,6 +19,29 @@ function SelectiveSwimming_init ()
 	});
 
 	SelectiveSwimmingSO.loop ();
+	SelectiveSwimmingSO.initPrefs ();
+}
+
+function SelectiveSwimming::initPrefs ()
+{
+	//* Constants *//
+
+	// Various mod values.
+	$SelectiveSwimming::LoopTick = 33;
+
+	// Properties of the players' swim zones.
+	$SelectiveSwimming::WaterViscosity = 70;
+	$SelectiveSwimming::WaterDensity = 0.7;
+	$SelectiveSwimming::WaterGravityMod = 0;
+
+	// How to scale the swim zone according to the player's bounding box.
+	$SelectiveSwimming::WaterScaleMultX = 0.5;
+	$SelectiveSwimming::WaterScaleMultY = 0.5;
+	$SelectiveSwimming::WaterScaleMultZ = 0.4;
+
+	//* Preferences *//
+
+	defaultValue ($Pref::Server::SelSwim::SurfaceHeight, 30);
 }
 
 function SelectiveSwimming::loop ( %this )
@@ -54,11 +69,25 @@ function SelectiveSwimming::moveSwimZone ( %this, %client )
 	%swimZone = %client.selSwimZone;
 
 	%scale = %swimZone.getScale ();
-	%scaleX = getWord (%scale, 0) / 2;
-	%scaleY = getWord (%scale, 1) / 2;
-	%scaleZ = getWord (%scale, 2) * 0.1;
+	%scaleX = getWord (%scale, 0);
+	%scaleY = getWord (%scale, 1);
+	%scaleZ = getWord (%scale, 2);
 
-	%swimZone.setTransform (vectorAdd (%client.player.position, -%scaleX SPC %scaleY SPC -%scaleZ));
+	%position = %client.player.position;
+
+	// Some adjustments are needed to center the swim zone.
+	%newPosX = getWord (%position, 0) - (%scaleX / 2);
+	%newPosY = getWord (%position, 1) + (%scaleY / 2);
+
+	// We fudge this Z coordinate a bit with the `* 0.1` to prevent the bottom of the swim zone from
+	// being flush with the ground, which creates this weird half-walking effect when the player is
+	// touching the ground.
+	%newPosZ = getWord (%position, 2) - (%scaleZ * 0.1);
+
+	// Clamp the swim zone's Z position so that the top of it doesn't go above the surface height.
+	%newPosZ = mClampF (%newPosZ, -1, $Pref::Server::SelSwim::SurfaceHeight - %scaleZ);
+
+	%swimZone.setTransform (%newPosX SPC %newPosY SPC %newPosZ);
 }
 
 // Creates a swim zone and attaches it to the client.
