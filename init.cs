@@ -17,7 +17,7 @@ function SelectiveSwimming_init ()
 	});
 
 	// Initialize mod-related variables and preferences.
-	SelectiveSwimmingSO.initPrefs ();
+	SelectiveSwimmingSO.initVars ();
 
 	//* Implement potentially unimplemented callbacks so we don't get console errors *//
 
@@ -46,7 +46,7 @@ function SelectiveSwimming_init ()
 	SelectiveSwimmingSO.loop ();
 }
 
-function SelectiveSwimming::initPrefs ()
+function SelectiveSwimming::initVars ()
 {
 	//* Constants *//
 
