@@ -97,8 +97,8 @@ function SelectiveSwimming::moveSwimZone ( %this, %swimZone )
 	%swimZone.setTransform (%newPosX SPC %newPosY SPC %newPosZ);
 }
 
-// Creates a swim zone.
-function SelectiveSwimming::createSwimZone ( %this )
+// Creates a swim zone and, optionally, attaches it to an object.
+function SelectiveSwimming::createSwimZone ( %this, %object )
 {
 	%swimZone = new PhysicalZone ()
 	{
@@ -111,6 +111,11 @@ function SelectiveSwimming::createSwimZone ( %this )
 
 	MissionCleanup.add (%swimZone);
 	%this.swimZones.add (%swimZone);
+
+	if ( isObject (%object) )
+	{
+		%this.attachSwimZone (%swimZone, %object);
+	}
 
 	return %swimZone;
 }
@@ -199,7 +204,7 @@ package Server_SelectiveSwimming
 
 		if ( isObject (%player) )
 		{
-			SelectiveSwimmingSO.attachSwimZone (SelectiveSwimmingSO.createSwimZone (), %player);
+			SelectiveSwimmingSO.createSwimZone (%player);
 		}
 	}
 
@@ -211,7 +216,7 @@ package Server_SelectiveSwimming
 
 		if ( isObject (%client) )
 		{
-			SelectiveSwimmingSO.attachSwimZone (SelectiveSwimmingSO.createSwimZone (), %obj);
+			SelectiveSwimmingSO.createSwimZone (%obj);
 		}
 	}
 
