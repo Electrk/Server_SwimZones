@@ -38,7 +38,7 @@ function SelectiveSwimming::initPrefs ()
 	$SelectiveSwimming::LoopTick = 33;
 
 	// Properties of the players' swim zones.
-	$SelectiveSwimming::WaterViscosity = 70;
+	$SelectiveSwimming::WaterViscosity = 40;
 	$SelectiveSwimming::WaterDensity = 0.7;
 	$SelectiveSwimming::WaterGravityMod = 0;
 
@@ -49,7 +49,7 @@ function SelectiveSwimming::initPrefs ()
 
 	//* Preferences *//
 
-	defaultValue ($Pref::Server::SelSwim::SurfaceHeight, 30);
+	$Pref::Server::SelSwim::SurfaceHeight = defaultValue ($Pref::Server::SelSwim::SurfaceHeight, 30);
 }
 
 function SelectiveSwimming::loop ( %this )
