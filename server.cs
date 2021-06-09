@@ -1,6 +1,3 @@
-// NOTE: All the functions in this mod assume that the arguments passed in exist.  It is up to the
-//       caller to make sure that they do. 
-
 function defaultValue ( %value, %default )
 {
 	return (%value $= "" ? %default : %value);
@@ -20,6 +17,17 @@ function SelectiveSwimming_init ()
 
 	SelectiveSwimmingSO.loop ();
 	SelectiveSwimmingSO.initPrefs ();
+}
+
+function SelectiveSwimming::onAdd ( %this )
+{
+	%this.swimZones = new SimSet ();
+}
+
+function SelectiveSwimming::onRemove ( %this )
+{
+	%this.swimZones.deleteAll ();
+	%this.swimZones.delete ();
 }
 
 function SelectiveSwimming::initPrefs ()
@@ -48,32 +56,31 @@ function SelectiveSwimming::loop ( %this )
 {
 	cancel (%this.mainLoop);
 
-	%count = ClientGroup.getCount ();
+	%swimZones = %this.swimZones;
+	%count = %swimZones.getCount ();
 
 	for ( %i = 0; %i < %count; %i++ )
 	{
-		%client = ClientGroup.getObject (%i);
+		%swimZone = %swimZones.getObject (%i);
 
-		if ( isObject (%client.selSwimZone) && isObject (%client.player) )
+		if ( isObject (%swimZone.selSwimObj) )
 		{
-			%this.moveSwimZone (%client);
+			%this.moveSwimZone (%swimZone);
 		}
 	}
 
 	%this.mainLoop = %this.schedule ($SelectiveSwimming::LoopTick, "loop");
 }
 
-// Moves a swim zone to its player.  Assumes `%client.selSwimZone` and `%client.player` exist.
-function SelectiveSwimming::moveSwimZone ( %this, %client )
+// Moves a swim zone to its player.  Assumes `%swimZone.selSwimObj` exists and is a SceneObject.
+function SelectiveSwimming::moveSwimZone ( %this, %swimZone )
 {
-	%swimZone = %client.selSwimZone;
-
 	%scale = %swimZone.getScale ();
 	%scaleX = getWord (%scale, 0);
 	%scaleY = getWord (%scale, 1);
 	%scaleZ = getWord (%scale, 2);
 
-	%position = %client.player.position;
+	%position = %swimZone.selSwimObj.position;
 
 	// Some adjustments are needed to center the swim zone.
 	%newPosX = getWord (%position, 0) - (%scaleX / 2);
@@ -90,14 +97,9 @@ function SelectiveSwimming::moveSwimZone ( %this, %client )
 	%swimZone.setTransform (%newPosX SPC %newPosY SPC %newPosZ);
 }
 
-// Creates a swim zone and attaches it to the client.
-function SelectiveSwimming::createSwimZone ( %this, %client )
+// Creates a swim zone.
+function SelectiveSwimming::createSwimZone ( %this )
 {
-	if ( isObject (%client.selSwimZone) || !isObject (%client.player) )
-	{
-		return 0;
-	}
-
 	%swimZone = new PhysicalZone ()
 	{
 		isWater = true;
@@ -106,40 +108,69 @@ function SelectiveSwimming::createSwimZone ( %this, %client )
 		gravityMod = $SelectiveSwimming::WaterGravityMod;
 		polyhedron = "0 0 0 1 0 0 0 -1 0 0 0 1";
 	};
+
 	MissionCleanup.add (%swimZone);
-
-	%client.selSwimZone = %swimZone;
-
-	%this.updateSwimZoneScale (%client);
-	%this.moveSwimZone (%client);
+	%this.swimZones.add (%swimZone);
 
 	return %swimZone;
 }
 
-// Deletes a swim zone and detaches it from the client.
-function SelectiveSwimming::deleteSwimZone ( %this, %client )
+// Attaches a swim zone to an object, provided that it's not attached already.
+function SelectiveSwimming::attachSwimZone ( %this, %swimZone, %object )
 {
-	%client.selSwimZone.delete ();
-	%client.selSwimZone = "";
+	// Make sure it's a valid SceneObject and neither are already attached to another object/swim zone.
+	if ( %object.getType () <= 0 || isObject (%object.selSwimZone) || isObject (%swimZone.selSwimObj) )
+	{
+		return;
+	}
+
+	%object.selSwimZone = %swimZone;
+	%swimZone.selSwimObj = %object;
+
+	%this.updateSwimZoneScale (%swimZone);
+	%this.moveSwimZone (%swimZone);
+}
+
+// Detaches a swim zone from an object, provided that it's actually attached to an object.
+function SelectiveSwimming::detachSwimZone ( %this, %swimZone )
+{
+	%object = %swimZone.selSwimObj;
+	%objectZone = %object.selSwimZone;
+
+	%swimZone.selSwimObj = "";
+
+	// Make sure this swim zone is attached to the correct object.
+	if ( isObject (%objectZone) && %objectZone.getID () == %swimZone.getID () )
+	{
+		%object.selSwimZone = "";
+	}
+}
+
+// Deletes a swim zone and detaches it from its object.
+function SelectiveSwimming::deleteSwimZone ( %this, %swimZone )
+{
+	%this.detachSwimZone (%swimZone);
+	%swimZone.delete ();
 }
 
 // Updates a swim zone's scale based on its player's bounding box and scale.
-// Assumes `%client.selSwimZone` and `%client.player` exist.
-function SelectiveSwimming::updateSwimZoneScale ( %this, %client )
+// Assumes `%swimZone.selSwimObj` exists.
+function SelectiveSwimming::updateSwimZoneScale ( %this, %swimZone )
 {
-	%player = %client.player;
+	%object = %swimZone.selSwimObj;
 
-	%bounds = %player.dataBlock.boundingBox;
+	%box = %object.getObjectBox ();
+	%bounds = vectorSub (getWords (%box, 3, 5), getWords (%box, 0, 2));
 	%boundsX = getWord (%bounds, 0);
 	%boundsY = getWord (%bounds, 1);
 	%boundsZ = getWord (%bounds, 2);
 
-	%scale = %player.getScale ();
+	%scale = %object.getScale ();
 	%scaleX = getWord (%scale, 0);
 	%scaleY = getWord (%scale, 1);
 	%scaleZ = getWord (%scale, 2);
 
-	%client.selSwimZone.setScale ((%boundsX * $SelectiveSwimming::WaterScaleMultX * %scaleX)
+	%swimZone.setScale ((%boundsX * $SelectiveSwimming::WaterScaleMultX * %scaleX)
 		SPC (%boundsY * $SelectiveSwimming::WaterScaleMultY * %scaleY)
 		SPC (%boundsZ * $SelectiveSwimming::WaterScaleMultZ * %scaleZ));
 }
@@ -148,6 +179,7 @@ function SelectiveSwimming::updateSwimZoneScale ( %this, %client )
 function SelectiveSwimming::setSwimZoneEnabled ( %this, %swimZone, %enabled )
 {
 	%swimZone.isWater = %enabled;
+	%swimZone.gravityMod = !%enabled;
 	%swimZone.sendUpdate ();
 }
 
@@ -163,15 +195,11 @@ package Server_SelectiveSwimming
 	{
 		Parent::createPlayer (%client, %spawnPoint);
 
-		%swimZone = %client.selSwimZone;
+		%player = %client.player;
 
-		if ( isObject (%swimZone) )
+		if ( isObject (%player) )
 		{
-			SelectiveSwimmingSO.setSwimZoneEnabled (%swimZone, true);
-		}
-		else
-		{
-			SelectiveSwimmingSO.createSwimZone (%client);
+			SelectiveSwimmingSO.attachSwimZone (SelectiveSwimmingSO.createSwimZone (), %player);
 		}
 	}
 
@@ -180,18 +208,10 @@ package Server_SelectiveSwimming
 		Parent::onAdd (%this, %obj);
 
 		%client = %obj.client;
-		%swimZone = %client.selSwimZone;
 
 		if ( isObject (%client) )
 		{
-			if ( isObject (%swimZone) )
-			{
-				SelectiveSwimmingSO.setSwimZoneEnabled (%swimZone, true);
-			}
-			else
-			{
-				SelectiveSwimmingSO.createSwimZone (%client);
-			}
+			SelectiveSwimmingSO.attachSwimZone (SelectiveSwimmingSO.createSwimZone (), %obj);
 		}
 	}
 
@@ -199,36 +219,35 @@ package Server_SelectiveSwimming
 	{
 		Parent::onRemove (%this, %obj);
 
-		%client = %obj.client;
-		%swimZone = %client.selSwimZone;
+		%swimZone = %obj.selSwimZone;
 
-		if ( isObject (%client) && isObject (%swimZone) )
+		if ( isObject (%swimZone) )
 		{
-			SelectiveSwimmingSO.setSwimZoneEnabled (%swimZone, false);
+			SelectiveSwimmingSO.deleteSwimZone (%swimZone);
 		}
 	}
 
-	function Armor::onNewDataBlock (%this, %player)
+	function Armor::onNewDataBlock ( %this, %obj )
 	{
-		Parent::onNewDataBlock (%this, %player);
+		Parent::onNewDataBlock (%this, %obj);
 
-		%client = %player.client;
+		%swimZone = %obj.selSwimZone;
 
-		if ( isObject (%client.selSwimZone) )
+		if ( isObject (%swimZone) )
 		{
-			SelectiveSwimmingSO.updateSwimZoneScale (%client);
+			SelectiveSwimmingSO.updateSwimZoneScale (%swimZone);
 		}
 	}
 
-	function Player::setScale ( %player, %scale )
+	function SceneObject::setScale ( %this, %scale )
 	{
-		Parent::setScale (%player, %scale);
+		Parent::setScale (%this, %scale);
 
-		%client = %player.client;
+		%swimZone = %this.selSwimZone;
 
-		if ( isObject (%client.selSwimZone) )
+		if ( isObject (%swimZone) )
 		{
-			SelectiveSwimmingSO.updateSwimZoneScale (%client);
+			SelectiveSwimmingSO.updateSwimZoneScale (%swimZone);
 		}
 	}
 };
