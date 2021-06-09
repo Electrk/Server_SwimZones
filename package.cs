@@ -14,6 +14,7 @@ package Server_SelectiveSwimming
 
 		if ( isObject (%player) )
 		{
+			%player.canAttachSwimZone = true;
 			SelectiveSwimmingSO.createSwimZone (%player);
 		}
 	}

@@ -47,6 +47,12 @@ function SelectiveSwimming::initPrefs ()
 	$SelectiveSwimming::WaterScaleMultY = 0.5;
 	$SelectiveSwimming::WaterScaleMultZ = 0.4;
 
+	// We don't want to pollute the $TypeMasks::* variable space.
+	$SelectiveSwimming::TypeMask = $TypeMasks::CorpseObjectType
+		| $TypeMasks::ItemObjectType
+		| $TypeMasks::PlayerObjectType
+		| $TypeMasks::VehicleObjectType;
+
 	//* Preferences *//
 
 	$Pref::Server::SelSwim::SurfaceHeight = defaultValue ($Pref::Server::SelSwim::SurfaceHeight, 30);
@@ -98,42 +104,54 @@ function SelectiveSwimming::moveSwimZone ( %this, %swimZone )
 }
 
 // Creates a swim zone and, optionally, attaches it to an object.
+// Returns 0 if it cannot attach the swim zone to the specified object.
 function SelectiveSwimming::createSwimZone ( %this, %object )
 {
-	%swimZone = new PhysicalZone ()
-	{
-		isWater = true;
-		waterViscosity = $SelectiveSwimming::WaterViscosity;
-		waterDensity = $SelectiveSwimming::WaterDensity;
-		gravityMod = $SelectiveSwimming::WaterGravityMod;
-		polyhedron = "0 0 0 1 0 0 0 -1 0 0 0 1";
-	};
+	%swimZone = 0;
 
-	MissionCleanup.add (%swimZone);
-	%this.swimZones.add (%swimZone);
-
-	if ( isObject (%object) )
+	if ( %object $= "" || %this.canAttachSwimZone (%object) )
 	{
-		%this.attachSwimZone (%swimZone, %object);
+		%swimZone = new PhysicalZone ()
+		{
+			isWater = true;
+			waterViscosity = $SelectiveSwimming::WaterViscosity;
+			waterDensity = $SelectiveSwimming::WaterDensity;
+			gravityMod = $SelectiveSwimming::WaterGravityMod;
+			polyhedron = "0 0 0 1 0 0 0 -1 0 0 0 1";
+		};
+
+		MissionCleanup.add (%swimZone);
+		%this.swimZones.add (%swimZone);
+
+		if ( %object !$= "" )
+		{
+			%this.attachSwimZone (%swimZone, %object);
+		}
 	}
 
 	return %swimZone;
 }
 
+// Checks whether a swim zone can attach to an object.
+function SelectiveSwimming::canAttachSwimZone ( %this, %object )
+{
+	return %object.canAttachSwimZone
+		&& !isObject (%object.selSwimZone)
+		&& !isObject (%swimZone.selSwimObj)
+		&& (%object.getType () & $SelectiveSwimming::TypeMask);
+}
+
 // Attaches a swim zone to an object, provided that it's not attached already.
 function SelectiveSwimming::attachSwimZone ( %this, %swimZone, %object )
 {
-	// Make sure it's a valid SceneObject and neither are already attached to another object/swim zone.
-	if ( %object.getType () <= 0 || isObject (%object.selSwimZone) || isObject (%swimZone.selSwimObj) )
+	if ( %this.canAttachSwimZone (%object) )
 	{
-		return;
+		%object.selSwimZone = %swimZone;
+		%swimZone.selSwimObj = %object;
+
+		%this.updateSwimZoneScale (%swimZone);
+		%this.moveSwimZone (%swimZone);
 	}
-
-	%object.selSwimZone = %swimZone;
-	%swimZone.selSwimObj = %object;
-
-	%this.updateSwimZoneScale (%swimZone);
-	%this.moveSwimZone (%swimZone);
 }
 
 // Detaches a swim zone from an object, provided that it's actually attached to an object.
