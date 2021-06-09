@@ -11,7 +11,7 @@ function SelectiveSwimming::onAdd ( %this )
 
 function SelectiveSwimming::onRemove ( %this )
 {
-	%this.swimZones.deleteAll ();
+	%this.deleteAllSwimZones ();
 	%this.swimZones.delete ();
 }
 
@@ -128,6 +128,17 @@ function SelectiveSwimming::deleteSwimZone ( %this, %swimZone )
 {
 	%this.detachSwimZone (%swimZone);
 	%swimZone.delete ();
+}
+
+// Deletes all the swim zones on the map.
+function SelectiveSwimming::deleteAllSwimZones ( %this )
+{
+	%swimZones = %this.swimZones;
+
+	while ( %swimZones.getCount () )
+	{
+		%this.deleteSwimZone (%swimZones.getObject (0));
+	}
 }
 
 // Updates a swim zone's scale based on its player's bounding box and scale.
