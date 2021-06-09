@@ -103,13 +103,13 @@ function SelectiveSwimming::moveSwimZone ( %this, %swimZone )
 	%swimZone.setTransform (%newPosX SPC %newPosY SPC %newPosZ);
 }
 
-// Creates a swim zone and, optionally, attaches it to an object.
-// Returns 0 if it cannot attach the swim zone to the specified object.
+// Creates a swim zone and attaches it to an object.  Returns 0 if it cannot attach the swim zone to
+// the specified object.
 function SelectiveSwimming::createSwimZone ( %this, %object )
 {
 	%swimZone = 0;
 
-	if ( %object $= "" || %this.canAttachSwimZone (%object) )
+	if ( %this.canAttachSwimZone (%object) )
 	{
 		%swimZone = new PhysicalZone ()
 		{
@@ -123,10 +123,7 @@ function SelectiveSwimming::createSwimZone ( %this, %object )
 		MissionCleanup.add (%swimZone);
 		%this.swimZones.add (%swimZone);
 
-		if ( %object !$= "" )
-		{
-			%this.attachSwimZone (%swimZone, %object);
-		}
+		%this.attachSwimZone (%swimZone, %object);
 	}
 
 	return %swimZone;
