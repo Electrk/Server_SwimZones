@@ -179,8 +179,16 @@ function SelectiveSwimming::updateSwimZoneScale ( %this, %swimZone )
 {
 	%object = %swimZone.selSwimObj;
 
-	%box = %object.getObjectBox ();
-	%bounds = vectorSub (getWords (%box, 3, 5), getWords (%box, 0, 2));
+	if ( %object.getType () & $TypeMasks::PlayerObjectType )
+	{
+		%bounds = %object.dataBlock.boundingBox;
+	}
+	else
+	{
+		%box = %object.getObjectBox ();
+		%bounds = vectorSub (getWords (%box, 3, 5), getWords (%box, 0, 2));
+	}
+
 	%boundsX = getWord (%bounds, 0);
 	%boundsY = getWord (%bounds, 1);
 	%boundsZ = getWord (%bounds, 2);
