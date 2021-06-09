@@ -1,3 +1,28 @@
+function SelectiveSwimming::onObjectAdd ( %this, %object )
+{
+	%this.createSwimZone (%object);
+}
+
+function SelectiveSwimming::onObjectRemove ( %this, %object )
+{
+	%swimZone = %object.selSwimZone;
+
+	if ( isObject (%swimZone) )
+	{
+		SelectiveSwimmingSO.deleteSwimZone (%swimZone);
+	}
+}
+
+function SelectiveSwimming::onObjectNewDataBlock ( %this, %object )
+{
+	%swimZone = %object.selSwimZone;
+
+	if ( isObject (%swimZone) )
+	{
+		SelectiveSwimmingSO.updateSwimZoneScale (%swimZone);
+	}
+}
+
 package Server_SelectiveSwimming
 {
 	function createMission ()
@@ -15,44 +40,26 @@ package Server_SelectiveSwimming
 		if ( isObject (%player) )
 		{
 			%player.canAttachSwimZone = true;
-			SelectiveSwimmingSO.createSwimZone (%player);
+			SelectiveSwimmingSO.onObjectAdd (%player);
 		}
 	}
 
 	function Armor::onAdd ( %this, %obj )
 	{
 		Parent::onAdd (%this, %obj);
-
-		%client = %obj.client;
-
-		if ( isObject (%client) )
-		{
-			SelectiveSwimmingSO.createSwimZone (%obj);
-		}
+		SelectiveSwimmingSO.onObjectAdd (%obj);
 	}
 
 	function Armor::onRemove ( %this, %obj )
 	{
 		Parent::onRemove (%this, %obj);
-
-		%swimZone = %obj.selSwimZone;
-
-		if ( isObject (%swimZone) )
-		{
-			SelectiveSwimmingSO.deleteSwimZone (%swimZone);
-		}
+		SelectiveSwimmingSO.onObjectRemove (%obj);
 	}
 
 	function Armor::onNewDataBlock ( %this, %obj )
 	{
 		Parent::onNewDataBlock (%this, %obj);
-
-		%swimZone = %obj.selSwimZone;
-
-		if ( isObject (%swimZone) )
-		{
-			SelectiveSwimmingSO.updateSwimZoneScale (%swimZone);
-		}
+		SelectiveSwimmingSO.onObjectNewDataBlock (%obj);
 	}
 
 	function SceneObject::setScale ( %this, %scale )
