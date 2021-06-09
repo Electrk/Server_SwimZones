@@ -13,7 +13,7 @@ function SelectiveSwimming::onObjectRemove ( %this, %object )
 	}
 }
 
-function SelectiveSwimming::onObjectNewDataBlock ( %this, %object )
+function SelectiveSwimming::onObjectBoundsChange ( %this, %object )
 {
 	%swimZone = %object.selSwimZone;
 
@@ -59,19 +59,13 @@ package Server_SelectiveSwimming
 	function Armor::onNewDataBlock ( %this, %obj )
 	{
 		Parent::onNewDataBlock (%this, %obj);
-		SelectiveSwimmingSO.onObjectNewDataBlock (%obj);
+		SelectiveSwimmingSO.onObjectBoundsChange (%obj);
 	}
 
 	function SceneObject::setScale ( %this, %scale )
 	{
 		Parent::setScale (%this, %scale);
-
-		%swimZone = %this.selSwimZone;
-
-		if ( isObject (%swimZone) )
-		{
-			SelectiveSwimmingSO.updateSwimZoneScale (%swimZone);
-		}
+		SelectiveSwimmingSO.onObjectBoundsChange (%this);
 	}
 };
 activatePackage (Server_SelectiveSwimming);
