@@ -19,6 +19,29 @@ function SelectiveSwimming_init ()
 	// Initialize mod-related variables and preferences.
 	SelectiveSwimmingSO.initPrefs ();
 
+	//* Implement potentially unimplemented callbacks so we don't get console errors *//
+
+	%namespaces = "WheeledVehicleData FlyingVehicleData";
+	%functions = "onAdd onRemove onNewDataBlock";
+
+	%numNamespaces = getWordCount (%namespaces);
+	%numFunctions = getWordCount (%functions);
+
+	for ( %n = 0; %n < %numNamespaces; %n++ )
+	{
+		%ns = getWord (%namespaces, %n);
+
+		for ( %f = 0; %f < %numFunctions; %f++ )
+		{
+			%func = getWord (%functions, %f);
+
+			if ( !isFunction (%ns, %func) )
+			{
+				eval ("function " @ %ns @ "::" @ %func @ "(){}");
+			}
+		}
+	}
+
 	// Start the main loop.
 	SelectiveSwimmingSO.loop ();
 }
