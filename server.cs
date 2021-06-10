@@ -35,7 +35,9 @@ function SelectiveSwimming::loop ( %this )
 	%this.mainLoop = %this.schedule ($SelectiveSwimming::LoopTick, "loop");
 }
 
-// Moves a swim zone to its player.  Assumes `%swimZone.selSwimObj` exists and is a SceneObject.
+// Moves a swim zone to its player.
+//
+// Assumes `%swimZone.selSwimObj` exists and is a SceneObject.
 function SelectiveSwimming::moveSwimZone ( %this, %swimZone )
 {
 	%scale = %swimZone.getScale ();
@@ -60,8 +62,9 @@ function SelectiveSwimming::moveSwimZone ( %this, %swimZone )
 	%swimZone.setTransform (%newPosX SPC %newPosY SPC %newPosZ);
 }
 
-// Creates a swim zone and attaches it to an object.  Returns 0 if it cannot attach the swim zone to
-// the specified object.
+// Creates a swim zone and attaches it to an object.
+//
+// Returns 0 if it cannot attach the swim zone to the specified object.
 function SelectiveSwimming::createSwimZone ( %this, %object )
 {
 	%swimZone = 0;
@@ -86,19 +89,29 @@ function SelectiveSwimming::createSwimZone ( %this, %object )
 	return %swimZone;
 }
 
-// Checks whether a swim zone can attach to an object.
-function SelectiveSwimming::canAttachSwimZone ( %this, %object )
+// Checks whether a new or existing swim zone can be attached to an object.
+//
+// If a value is passed to `%swimZone`, it checks if that swim zone can be attached to the object.
+// Otherwise, it just checks if a new one can.
+function SelectiveSwimming::canAttachSwimZone ( %this, %object, %swimZone )
 {
-	return %object.canAttachSwimZone
+	%canAttach = %object.canAttachSwimZone
 		&& !isObject (%object.selSwimZone)
-		&& !isObject (%swimZone.selSwimObj)
 		&& (%object.getType () & $SelectiveSwimming::TypeMask);
+
+	if ( %swimZone !$= "" )
+	{
+		// Make sure the swim zone isn't already attached to another object.
+		%canAttach = %canAttach && !isObject (%swimZone.selSwimObj);
+	}
+
+	return %canAttach;
 }
 
 // Attaches a swim zone to an object, provided that it's not attached already.
 function SelectiveSwimming::attachSwimZone ( %this, %swimZone, %object )
 {
-	if ( %this.canAttachSwimZone (%object) )
+	if ( %this.canAttachSwimZone (%object, %swimZone) )
 	{
 		%object.selSwimZone = %swimZone;
 		%swimZone.selSwimObj = %object;
@@ -142,6 +155,7 @@ function SelectiveSwimming::deleteAllSwimZones ( %this )
 }
 
 // Updates a swim zone's scale based on its player's bounding box and scale.
+//
 // Assumes `%swimZone.selSwimObj` exists.
 function SelectiveSwimming::updateSwimZoneScale ( %this, %swimZone )
 {
