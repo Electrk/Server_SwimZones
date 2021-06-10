@@ -61,10 +61,15 @@ function SelectiveSwimming::initVars ()
 	$SelectiveSwimming::WaterDensity = 0.7;
 	$SelectiveSwimming::WaterGravityMod = 0;
 
-	// How to scale the swim zone according to the player's bounding box.
-	$SelectiveSwimming::WaterScaleMultX = 0.5;
-	$SelectiveSwimming::WaterScaleMultY = 0.5;
-	$SelectiveSwimming::WaterScaleMultZ = 0.4;
+	// How to scale the swim zone according to a player's bounding box.
+	$SelectiveSwimming::PlayerScaleMultX = 0.5;
+	$SelectiveSwimming::PlayerScaleMultY = 0.5;
+	$SelectiveSwimming::PlayerScaleMultZ = 0.4;
+
+	// How to scale the swim zone according to a non-player's world box.
+	$SelectiveSwimming::ObjectScaleMultX = 2.0;
+	$SelectiveSwimming::ObjectScaleMultY = 2.0;
+	$SelectiveSwimming::ObjectScaleMultZ = 1.6;
 
 	// We don't want to pollute the $TypeMasks::* variable space.
 	$SelectiveSwimming::TypeMask = $TypeMasks::CorpseObjectType

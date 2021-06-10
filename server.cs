@@ -149,26 +149,30 @@ function SelectiveSwimming::updateSwimZoneScale ( %this, %swimZone )
 
 	if ( %object.getType () & $TypeMasks::PlayerObjectType )
 	{
+		//* Special handling for players because the player's world box is MASSIVE *//
+
 		%bounds = %object.dataBlock.boundingBox;
+
+		%scale = %object.getScale ();
+		%scaleX = getWord (%scale, 0);
+		%scaleY = getWord (%scale, 1);
+		%scaleZ = getWord (%scale, 2);
+
+		%newScale = getWord (%bounds, 0) * %scaleX * $SelectiveSwimming::PlayerScaleMultX
+			SPC getWord (%bounds, 1) * %scaleY * $SelectiveSwimming::PlayerScaleMultY
+			SPC getWord (%bounds, 2) * %scaleZ * $SelectiveSwimming::PlayerScaleMultZ;
 	}
 	else
 	{
-		%box = %object.getObjectBox ();
+		%box = %object.getWorldBox ();
 		%bounds = vectorSub (getWords (%box, 3, 5), getWords (%box, 0, 2));
+
+		%newScale = getWord (%bounds, 0) * $SelectiveSwimming::ObjectScaleMultX
+			SPC getWord (%bounds, 1) * $SelectiveSwimming::ObjectScaleMultY
+			SPC getWord (%bounds, 2) * $SelectiveSwimming::ObjectScaleMultZ;
 	}
 
-	%boundsX = getWord (%bounds, 0);
-	%boundsY = getWord (%bounds, 1);
-	%boundsZ = getWord (%bounds, 2);
-
-	%scale = %object.getScale ();
-	%scaleX = getWord (%scale, 0);
-	%scaleY = getWord (%scale, 1);
-	%scaleZ = getWord (%scale, 2);
-
-	%swimZone.setScale ((%boundsX * $SelectiveSwimming::WaterScaleMultX * %scaleX)
-		SPC (%boundsY * $SelectiveSwimming::WaterScaleMultY * %scaleY)
-		SPC (%boundsZ * $SelectiveSwimming::WaterScaleMultZ * %scaleZ));
+	%swimZone.setScale (%newScale);
 }
 
 // Enables/disables the swim zone.
