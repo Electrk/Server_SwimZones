@@ -25,8 +25,7 @@ function SelectiveSwimming::onObjectBoundsChange ( %this, %object )
 	}
 }
 
-//* Main package *//
-
+// Main package
 package Server_SelectiveSwimming
 {
 	function createMission ()
@@ -56,6 +55,8 @@ package Server_SelectiveSwimming
 };
 activatePackage (Server_SelectiveSwimming);
 
+// Package for hooking into onAdd, onRemove, and onNewDataBlock callbacks.
+//
 // We have to activate this package later or else the isFunction() checks performed in
 // SelectiveSwimming_init() won't work.
 package Server_SelectiveSwimming__callbacks
@@ -100,7 +101,10 @@ package Server_SelectiveSwimming__callbacks
 		SelectiveSwimmingSO.onObjectBoundsChange (%obj);
 	}
 
-	//* Vehicle callbacks.  OOP was a mistake. *//
+	//* Vehicle callbacks *//
+
+	// We have to do each individual subclass because the base VehicleData class doesn't call any
+	// callbacks (:
 
 	function WheeledVehicleData::onAdd ( %this, %obj )
 	{

@@ -15,6 +15,7 @@ function SelectiveSwimming::onRemove ( %this )
 	%this.swimZones.delete ();
 }
 
+// Main update loop
 function SelectiveSwimming::loop ( %this )
 {
 	cancel (%this.mainLoop);
@@ -35,7 +36,7 @@ function SelectiveSwimming::loop ( %this )
 	%this.mainLoop = %this.schedule ($SelectiveSwimming::LoopTick, "loop");
 }
 
-// Moves a swim zone to its player.
+// Moves a swim zone to its object.
 //
 // Assumes `%swimZone.selSwimObj` exists and is a SceneObject.
 function SelectiveSwimming::moveSwimZone ( %this, %swimZone )
@@ -89,9 +90,9 @@ function SelectiveSwimming::createSwimZone ( %this, %object )
 	return %swimZone;
 }
 
-// Checks whether a new or existing swim zone can be attached to an object.
+// Returns whether a new or existing swim zone can be attached to an object.
 //
-// If a value is passed to `%swimZone`, it checks if that swim zone can be attached to the object.
+// If a swim zone is passed to `%swimZone`, the function checks if it can be attached to the object.
 // Otherwise, it just checks if a new one can.
 function SelectiveSwimming::canAttachSwimZone ( %this, %object, %swimZone )
 {
@@ -108,7 +109,7 @@ function SelectiveSwimming::canAttachSwimZone ( %this, %object, %swimZone )
 	return %canAttach;
 }
 
-// Attaches a swim zone to an object, provided that it's not attached already.
+// Attaches a swim zone to an object, provided that it's not attached to something already.
 function SelectiveSwimming::attachSwimZone ( %this, %swimZone, %object )
 {
 	if ( %this.canAttachSwimZone (%object, %swimZone) )
@@ -154,7 +155,11 @@ function SelectiveSwimming::deleteAllSwimZones ( %this )
 	}
 }
 
-// Updates a swim zone's scale based on its player's bounding box and scale.
+// Updates a swim zone's scale based on its object.
+//
+// If it's attached to a player, it scales based on the datablock's bounding box as well as the
+// player's scale.
+// Otherwise, it scales based on the object's world box.
 //
 // Assumes `%swimZone.selSwimObj` exists.
 function SelectiveSwimming::updateSwimZoneScale ( %this, %swimZone )

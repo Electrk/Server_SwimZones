@@ -1,8 +1,10 @@
+// A shortcut utility function for doing default pref values.
 function defaultValue ( %value, %default )
 {
 	return (%value $= "" ? %default : %value);
 }
 
+// Creates the main ScriptObject, fixes some things, and starts the main loop.
 function SelectiveSwimming_init ()
 {
 	if ( isObject (SelectiveSwimmingSO) )
@@ -10,7 +12,7 @@ function SelectiveSwimming_init ()
 		SelectiveSwimmingSO.delete ();
 	}
 
-	// This is the ScriptObject we use for most of this mod's logic.
+	// This is the main ScriptObject we use for most of the mod's logic.
 	MissionCleanup.add (new ScriptObject (SelectiveSwimmingSO)
 	{
 		class = SelectiveSwimming;
@@ -51,30 +53,30 @@ function SelectiveSwimming_init ()
 
 function SelectiveSwimming::initVars ()
 {
-	//* Constants *//
+	//* Variables *//
 
-	// Various mod values.
+	// How fast the main loop should run
 	$SelectiveSwimming::LoopTick = 33;
 
-	// Properties of the players' swim zones.
+	// Swim zone properties
 	$SelectiveSwimming::WaterViscosity = 40;
 	$SelectiveSwimming::WaterDensity = 0.7;
 	$SelectiveSwimming::WaterGravityMod = 0;
 
-	// How to scale the swim zone according to a player's bounding box.
+	// How to scale a swim zone according to a player's bounding box
 	$SelectiveSwimming::PlayerScaleMultX = 0.5;
 	$SelectiveSwimming::PlayerScaleMultY = 0.5;
 	$SelectiveSwimming::PlayerScaleMultZ = 0.4;
 
-	// How to scale the swim zone according to a non-player's world box.
+	// How to scale a swim zone according to a non-player's world box
 	$SelectiveSwimming::ObjectScaleMultX = 2.0;
 	$SelectiveSwimming::ObjectScaleMultY = 2.0;
 	$SelectiveSwimming::ObjectScaleMultZ = 1.6;
 
 	// We don't want to pollute the $TypeMasks::* variable space.
-	$SelectiveSwimming::TypeMask = $TypeMasks::CorpseObjectType
+	$SelectiveSwimming::TypeMask = $TypeMasks::PlayerObjectType
+		| $TypeMasks::CorpseObjectType
 		| $TypeMasks::ItemObjectType
-		| $TypeMasks::PlayerObjectType
 		| $TypeMasks::VehicleObjectType;
 
 	//* Preferences *//
