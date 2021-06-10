@@ -15,7 +15,7 @@ function SelectiveSwimming::onObjectRemove ( %this, %object )
 	}
 }
 
-function SelectiveSwimming::onObjectBoundsChange ( %this, %object )
+function SelectiveSwimming::onObjectChange ( %this, %object )
 {
 	%swimZone = %object.selSwimZone;
 
@@ -50,7 +50,7 @@ package Server_SelectiveSwimming
 	function SceneObject::setScale ( %this, %scale )
 	{
 		Parent::setScale (%this, %scale);
-		SelectiveSwimmingSO.onObjectBoundsChange (%this);
+		SelectiveSwimmingSO.onObjectChange (%this);
 	}
 };
 activatePackage (Server_SelectiveSwimming);
@@ -78,7 +78,7 @@ package Server_SelectiveSwimming__callbacks
 	function Armor::onNewDataBlock ( %this, %obj )
 	{
 		Parent::onNewDataBlock (%this, %obj);
-		SelectiveSwimmingSO.onObjectBoundsChange (%obj);
+		SelectiveSwimmingSO.onObjectChange (%obj);
 	}
 
 	//* Item callbacks *//
@@ -98,7 +98,7 @@ package Server_SelectiveSwimming__callbacks
 	function ItemData::onNewDataBlock ( %this, %obj )
 	{
 		Parent::onNewDataBlock (%this, %obj);
-		SelectiveSwimmingSO.onObjectBoundsChange (%obj);
+		SelectiveSwimmingSO.onObjectChange (%obj);
 	}
 
 	//* Vehicle callbacks *//
@@ -121,7 +121,7 @@ package Server_SelectiveSwimming__callbacks
 	function WheeledVehicleData::onNewDataBlock ( %this, %obj )
 	{
 		Parent::onNewDataBlock (%this, %obj);
-		SelectiveSwimmingSO.onObjectBoundsChange (%obj);
+		SelectiveSwimmingSO.onObjectChange (%obj);
 	}
 
 	function FlyingVehicleData::onAdd ( %this, %obj )
@@ -139,7 +139,7 @@ package Server_SelectiveSwimming__callbacks
 	function FlyingVehicleData::onNewDataBlock ( %this, %obj )
 	{
 		Parent::onNewDataBlock (%this, %obj);
-		SelectiveSwimmingSO.onObjectBoundsChange (%obj);
+		SelectiveSwimmingSO.onObjectChange (%obj);
 	}
 
 	// I was going to add HoverVehicle callbacks, but the class appears to have been removed...
