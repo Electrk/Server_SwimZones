@@ -21,7 +21,7 @@ function SelectiveSwimming_init ()
 
 	//* Implement potentially unimplemented callbacks so we don't get console errors *//
 
-	%namespaces = "WheeledVehicleData FlyingVehicleData";
+	%namespaces = "ItemData WheeledVehicleData FlyingVehicleData";
 	%functions = "onAdd onRemove onNewDataBlock";
 
 	%numNamespaces = getWordCount (%namespaces);
@@ -41,6 +41,9 @@ function SelectiveSwimming_init ()
 			}
 		}
 	}
+
+	// We have to activate this package here or else the isFunction() checks above won't work.
+	activatePackage (Server_SelectiveSwimming__callbacks);
 
 	// Start the main loop.
 	SelectiveSwimmingSO.loop ();
