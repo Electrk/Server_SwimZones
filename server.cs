@@ -197,7 +197,12 @@ function SelectiveSwimming::updateSwimZoneScale ( %this, %swimZone )
 // Enables/disables the swim zone.
 function SelectiveSwimming::setSwimZoneEnabled ( %this, %swimZone, %enabled )
 {
-	%swimZone.isWater = %enabled;
-	%swimZone.gravityMod = !%enabled;
-	%swimZone.sendUpdate ();
+	if ( %enabled )
+	{
+		%swimZone.activate ();
+	}
+	else
+	{
+		%swimZone.deactivate ();
+	}
 }
