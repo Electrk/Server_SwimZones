@@ -58,6 +58,10 @@ function SelectiveSwimming::initVars ()
 	// How fast the main loop should run
 	$SelectiveSwimming::LoopTick = 33;
 
+	// Trigger types for different behaviors
+	$SelectiveSwimming::TriggerTypeEnter = 1;
+	$SelectiveSwimming::TriggerTypeLeave = 2;
+
 	// Swim zone properties
 	$SelectiveSwimming::WaterViscosity = 40;
 	$SelectiveSwimming::WaterDensity = 0.7;
