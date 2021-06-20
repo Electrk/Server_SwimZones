@@ -1,4 +1,4 @@
-Title: Selective Swimming
+Title: Swim Zones
 Author: Electrk
 
 A swimming/air system similar to Subnautica's.

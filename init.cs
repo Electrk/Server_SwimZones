@@ -5,18 +5,18 @@ function defaultValue ( %value, %default )
 }
 
 // Creates the main ScriptObject, fixes some things, and starts the main loop.
-function SelectiveSwimming_init ()
+function SwimZones_init ()
 {
-	if ( isObject (SelectiveSwimming) )
+	if ( isObject (SwimZones) )
 	{
-		SelectiveSwimming.delete ();
+		SwimZones.delete ();
 	}
 
 	// This is the main ScriptObject we use for most of the mod's logic.
-	MissionCleanup.add (new ScriptObject (SelectiveSwimming));
+	MissionCleanup.add (new ScriptObject (SwimZones));
 
 	// Initialize mod-related variables and preferences.
-	SelectiveSwimming.initVars ();
+	SwimZones.initVars ();
 
 	//* Implement potentially unimplemented callbacks so we don't get console errors *//
 
@@ -42,45 +42,45 @@ function SelectiveSwimming_init ()
 	}
 
 	// We have to activate this package here or else the isFunction() checks above won't work.
-	activatePackage (Server_SelectiveSwimming__callbacks);
+	activatePackage (Server_SwimZones__callbacks);
 
 	// Start the main loop.
-	SelectiveSwimming.loop ();
+	SwimZones.loop ();
 }
 
-function SelectiveSwimming::initVars ()
+function SwimZones::initVars ()
 {
 	//* Variables *//
 
 	// How fast the main loop should run
-	$SelectiveSwimming::LoopTick = 33;
+	$SwimZones::LoopTick = 33;
 
 	// Trigger types for different behaviors
-	$SelectiveSwimming::TriggerTypeEnter = 1;
-	$SelectiveSwimming::TriggerTypeLeave = 2;
+	$SwimZones::TriggerTypeEnter = 1;
+	$SwimZones::TriggerTypeLeave = 2;
 
 	// Swim zone properties
-	$SelectiveSwimming::WaterViscosity = 40;
-	$SelectiveSwimming::WaterDensity = 0.7;
-	$SelectiveSwimming::WaterGravityMod = 0;
+	$SwimZones::WaterViscosity = 40;
+	$SwimZones::WaterDensity = 0.7;
+	$SwimZones::WaterGravityMod = 0;
 
 	// How to scale a swim zone according to a player's bounding box
-	$SelectiveSwimming::PlayerScaleMultX = 0.5;
-	$SelectiveSwimming::PlayerScaleMultY = 0.5;
-	$SelectiveSwimming::PlayerScaleMultZ = 0.4;
+	$SwimZones::PlayerScaleMultX = 0.5;
+	$SwimZones::PlayerScaleMultY = 0.5;
+	$SwimZones::PlayerScaleMultZ = 0.4;
 
 	// How to scale a swim zone according to a non-player's world box
-	$SelectiveSwimming::ObjectScaleMultX = 2.0;
-	$SelectiveSwimming::ObjectScaleMultY = 2.0;
-	$SelectiveSwimming::ObjectScaleMultZ = 1.6;
+	$SwimZones::ObjectScaleMultX = 2.0;
+	$SwimZones::ObjectScaleMultY = 2.0;
+	$SwimZones::ObjectScaleMultZ = 1.6;
 
 	// We don't want to pollute the $TypeMasks::* variable space.
-	$SelectiveSwimming::TypeMask = $TypeMasks::PlayerObjectType
+	$SwimZones::TypeMask = $TypeMasks::PlayerObjectType
 		| $TypeMasks::CorpseObjectType
 		| $TypeMasks::ItemObjectType
 		| $TypeMasks::VehicleObjectType;
 
 	//* Preferences *//
 
-	$Pref::Server::SelSwim::SurfaceHeight = defaultValue ($Pref::Server::SelSwim::SurfaceHeight, 30);
+	$Pref::Server::SwimZones::SurfaceHeight = defaultValue ($Pref::Server::SwimZones::SurfaceHeight, 30);
 }

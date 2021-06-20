@@ -1,43 +1,43 @@
-datablock TriggerData ( SelSwimTrigger )
+datablock TriggerData ( SwimZoneTrigger )
 {
 	tickPeriodMS = 150;
 };
 
-function SelSwimTrigger::updateObjectSwimZone ( %data, %trigger, %object )
+function SwimZoneTrigger::updateObjectSwimZone ( %data, %trigger, %object )
 {
-	%swimZone = %object.selSwimZone;
+	%swimZone = %object.swimZone;
 
 	if ( isObject (%swimZone) && %object.lastSwimTriggerType $= "" )
 	{
-		%type = %trigger.selSwimTriggerType;
+		%type = %trigger.swimZoneTriggerType;
 
 		// Prevents jittering back and forth when players are standing in two triggers at once.
 		%object.lastSwimTriggerType = %type;
 
-		if ( %type == $SelectiveSwimming::TriggerTypeEnter )
+		if ( %type == $SwimZones::TriggerTypeEnter )
 		{
-			SelectiveSwimming.setSwimZoneEnabled (%swimZone, true);
+			SwimZones.setSwimZoneEnabled (%swimZone, true);
 		}
-		else if ( %type == $SelectiveSwimming::TriggerTypeLeave )
+		else if ( %type == $SwimZones::TriggerTypeLeave )
 		{
-			SelectiveSwimming.setSwimZoneEnabled (%swimZone, false);
+			SwimZones.setSwimZoneEnabled (%swimZone, false);
 		}
 	}
 }
 
-function SelSwimTrigger::onEnterTrigger ( %data, %trigger, %object )
+function SwimZoneTrigger::onEnterTrigger ( %data, %trigger, %object )
 {
 	%data.updateObjectSwimZone (%trigger, %object);
 }
 
-function SelSwimTrigger::onTickTrigger ( %data, %trigger, %object )
+function SwimZoneTrigger::onTickTrigger ( %data, %trigger, %object )
 {
 	%data.updateObjectSwimZone (%trigger, %object);
 }
 
-function SelSwimTrigger::onLeaveTrigger ( %data, %trigger, %object )
+function SwimZoneTrigger::onLeaveTrigger ( %data, %trigger, %object )
 {
-	if ( %object.lastSwimTriggerType == %trigger.selSwimTriggerType )
+	if ( %object.lastSwimTriggerType == %trigger.swimZoneTriggerType )
 	{
 		%object.lastSwimTriggerType = "";
 	}

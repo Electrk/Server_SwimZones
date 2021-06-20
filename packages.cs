@@ -1,37 +1,37 @@
 //* Handlers for different object callbacks *//
 
-function SelectiveSwimming::onObjectAdd ( %this, %object )
+function SwimZones::onObjectAdd ( %this, %object )
 {
 	%this.createSwimZone (%object);
 }
 
-function SelectiveSwimming::onObjectRemove ( %this, %object )
+function SwimZones::onObjectRemove ( %this, %object )
 {
-	%swimZone = %object.selSwimZone;
+	%swimZone = %object.swimZone;
 
 	if ( isObject (%swimZone) )
 	{
-		SelectiveSwimming.deleteSwimZone (%swimZone);
+		SwimZones.deleteSwimZone (%swimZone);
 	}
 }
 
-function SelectiveSwimming::onObjectChange ( %this, %object )
+function SwimZones::onObjectChange ( %this, %object )
 {
-	%swimZone = %object.selSwimZone;
+	%swimZone = %object.swimZone;
 
 	if ( isObject (%swimZone) )
 	{
-		SelectiveSwimming.updateSwimZoneScale (%swimZone);
+		SwimZones.updateSwimZoneScale (%swimZone);
 	}
 }
 
 // Main package
-package Server_SelectiveSwimming
+package Server_SwimZones
 {
 	function createMission ()
 	{
 		Parent::createMission ();
-		SelectiveSwimming_init ();
+		SwimZones_init ();
 	}
 
 	function GameConnection::createPlayer ( %client, %spawnPoint )
@@ -43,42 +43,42 @@ package Server_SelectiveSwimming
 		if ( isObject (%player) )
 		{
 			%player.canAttachSwimZone = true;
-			SelectiveSwimming.onObjectAdd (%player);
+			SwimZones.onObjectAdd (%player);
 		}
 	}
 
 	function SceneObject::setScale ( %this, %scale )
 	{
 		Parent::setScale (%this, %scale);
-		SelectiveSwimming.onObjectChange (%this);
+		SwimZones.onObjectChange (%this);
 	}
 };
-activatePackage (Server_SelectiveSwimming);
+activatePackage (Server_SwimZones);
 
 // Package for hooking into onAdd, onRemove, and onNewDataBlock callbacks.
 //
 // We have to activate this package later or else the isFunction() checks performed in
-// SelectiveSwimming_init() won't work.
-package Server_SelectiveSwimming__callbacks
+// SwimZones_init() won't work.
+package Server_SwimZones__callbacks
 {
 	//* Player and AIPlayer callbacks *//
 
 	function Armor::onAdd ( %this, %obj )
 	{
 		Parent::onAdd (%this, %obj);
-		SelectiveSwimming.onObjectAdd (%obj);
+		SwimZones.onObjectAdd (%obj);
 	}
 
 	function Armor::onRemove ( %this, %obj )
 	{
 		Parent::onRemove (%this, %obj);
-		SelectiveSwimming.onObjectRemove (%obj);
+		SwimZones.onObjectRemove (%obj);
 	}
 
 	function Armor::onNewDataBlock ( %this, %obj )
 	{
 		Parent::onNewDataBlock (%this, %obj);
-		SelectiveSwimming.onObjectChange (%obj);
+		SwimZones.onObjectChange (%obj);
 	}
 
 	//* Item callbacks *//
@@ -86,19 +86,19 @@ package Server_SelectiveSwimming__callbacks
 	function ItemData::onAdd ( %this, %obj )
 	{
 		Parent::onAdd (%this, %obj);
-		SelectiveSwimming.onObjectAdd (%obj);
+		SwimZones.onObjectAdd (%obj);
 	}
 
 	function ItemData::onRemove ( %this, %obj )
 	{
 		Parent::onRemove (%this, %obj);
-		SelectiveSwimming.onObjectRemove (%obj);
+		SwimZones.onObjectRemove (%obj);
 	}
 
 	function ItemData::onNewDataBlock ( %this, %obj )
 	{
 		Parent::onNewDataBlock (%this, %obj);
-		SelectiveSwimming.onObjectChange (%obj);
+		SwimZones.onObjectChange (%obj);
 	}
 
 	//* Vehicle callbacks *//
@@ -109,37 +109,37 @@ package Server_SelectiveSwimming__callbacks
 	function WheeledVehicleData::onAdd ( %this, %obj )
 	{
 		Parent::onAdd (%this, %obj);
-		SelectiveSwimming.onObjectAdd (%obj);
+		SwimZones.onObjectAdd (%obj);
 	}
 
 	function WheeledVehicleData::onRemove ( %this, %obj )
 	{
 		Parent::onRemove (%this, %obj);
-		SelectiveSwimming.onObjectRemove (%obj);
+		SwimZones.onObjectRemove (%obj);
 	}
 
 	function WheeledVehicleData::onNewDataBlock ( %this, %obj )
 	{
 		Parent::onNewDataBlock (%this, %obj);
-		SelectiveSwimming.onObjectChange (%obj);
+		SwimZones.onObjectChange (%obj);
 	}
 
 	function FlyingVehicleData::onAdd ( %this, %obj )
 	{
 		Parent::onAdd (%this, %obj);
-		SelectiveSwimming.onObjectAdd (%obj);
+		SwimZones.onObjectAdd (%obj);
 	}
 
 	function FlyingVehicleData::onRemove ( %this, %obj )
 	{
 		Parent::onRemove (%this, %obj);
-		SelectiveSwimming.onObjectRemove (%obj);
+		SwimZones.onObjectRemove (%obj);
 	}
 
 	function FlyingVehicleData::onNewDataBlock ( %this, %obj )
 	{
 		Parent::onNewDataBlock (%this, %obj);
-		SelectiveSwimming.onObjectChange (%obj);
+		SwimZones.onObjectChange (%obj);
 	}
 
 	// I was going to add HoverVehicle callbacks, but the class appears to have been removed...
