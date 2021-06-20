@@ -52,6 +52,9 @@ function SwimZones::initVars ()
 {
 	//* Variables *//
 
+	// Current add-on version
+	$SwimZones::Version = 1;
+
 	// How fast the main loop should run
 	$SwimZones::LoopTick = 33;
 
