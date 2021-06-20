@@ -7,19 +7,16 @@ function defaultValue ( %value, %default )
 // Creates the main ScriptObject, fixes some things, and starts the main loop.
 function SelectiveSwimming_init ()
 {
-	if ( isObject (SelectiveSwimmingSO) )
+	if ( isObject (SelectiveSwimming) )
 	{
-		SelectiveSwimmingSO.delete ();
+		SelectiveSwimming.delete ();
 	}
 
 	// This is the main ScriptObject we use for most of the mod's logic.
-	MissionCleanup.add (new ScriptObject (SelectiveSwimmingSO)
-	{
-		class = SelectiveSwimming;
-	});
+	MissionCleanup.add (new ScriptObject (SelectiveSwimming));
 
 	// Initialize mod-related variables and preferences.
-	SelectiveSwimmingSO.initVars ();
+	SelectiveSwimming.initVars ();
 
 	//* Implement potentially unimplemented callbacks so we don't get console errors *//
 
@@ -48,7 +45,7 @@ function SelectiveSwimming_init ()
 	activatePackage (Server_SelectiveSwimming__callbacks);
 
 	// Start the main loop.
-	SelectiveSwimmingSO.loop ();
+	SelectiveSwimming.loop ();
 }
 
 function SelectiveSwimming::initVars ()

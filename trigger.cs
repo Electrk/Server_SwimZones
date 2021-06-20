@@ -16,11 +16,11 @@ function SelSwimTrigger::updateObjectSwimZone ( %data, %trigger, %object )
 
 		if ( %type == $SelectiveSwimming::TriggerTypeEnter )
 		{
-			SelectiveSwimmingSO.setSwimZoneEnabled (%swimZone, true);
+			SelectiveSwimming.setSwimZoneEnabled (%swimZone, true);
 		}
 		else if ( %type == $SelectiveSwimming::TriggerTypeLeave )
 		{
-			SelectiveSwimmingSO.setSwimZoneEnabled (%swimZone, false);
+			SelectiveSwimming.setSwimZoneEnabled (%swimZone, false);
 		}
 	}
 }
